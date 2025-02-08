@@ -1,4 +1,5 @@
 __pycache__
 venv
-files/models/*
-data/*
+data/household_power_consumption.txt
+files/models/hybrid_model_power.keras
+files/models/simple_model_power.keras
