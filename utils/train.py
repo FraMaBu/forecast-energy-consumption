@@ -1,12 +1,22 @@
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
 
-def train_model(model, X_train, y_train, epochs=20, batch_size=32, validation_split=0.1):
+
+def train_model(
+    model, X_train, y_train, epochs=20, batch_size=32, validation_split=0.1
+):
     """
     Trains a Keras model.
     """
-    history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_split=validation_split)
+    history = model.fit(
+        X_train,
+        y_train,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_split=validation_split,
+    )
     return history
+
 
 def evaluate_model(model, X_test, y_test):
     """
@@ -15,31 +25,37 @@ def evaluate_model(model, X_test, y_test):
     loss = model.evaluate(X_test, y_test)
     return loss
 
-def plot_predictions(y_test, y_pred, title="Model Prediction", xlabel="Time step", ylabel="Scaled Price"):
+
+def plot_comparison(
+    y_test,
+    predictions_dict,
+    title="Comparison of Forecasting Models",
+    xlabel="Time step",
+    ylabel="Scaled Value",
+    sample_rate=24,  # Plot every 24th hour by default
+):
     """
-    Plots the true vs. predicted prices.
+    Plots a comparison of multiple models’ predictions.
+
+    Parameters:
+      - y_test: Array-like ground truth values.
+      - predictions_dict: Dictionary mapping model names to prediction arrays.
+      - sample_rate: Integer. Only every sample_rate-th data point will be plotted to avoid overcrowding.
+      - title, xlabel, ylabel: Plot labeling.
+
+    The function downsamples the data for plotting if the full hourly data is too dense.
     """
-    plt.figure(figsize=(12, 6))
-    plt.plot(y_test, label="True Price (scaled)")
-    plt.plot(y_pred, label="Predicted Price (scaled)")
+    # Create an array of indices that will be used for plotting.
+    indices = np.arange(0, len(y_test), sample_rate)
+
+    plt.figure(figsize=(14, 7))
+    plt.plot(indices, y_test[indices], label="True Value", linestyle="--")
+
+    for label, pred in predictions_dict.items():
+        plt.plot(indices, pred[indices], label=label)
+
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.legend()
-    plt.show()
-
-def plot_comparison(y_test, predictions_dict, title="Comparison of Forecasting Models"):
-    """
-    Plots a comparison of multiple models’ predictions.
-    
-    predictions_dict should be a dictionary mapping model names to predictions.
-    """
-    plt.figure(figsize=(14, 7))
-    plt.plot(y_test, label="True Price (scaled)", linestyle="--")
-    for label, pred in predictions_dict.items():
-        plt.plot(pred, label=label)
-    plt.title(title)
-    plt.xlabel("Time step")
-    plt.ylabel("Scaled Price")
     plt.legend()
     plt.show()
